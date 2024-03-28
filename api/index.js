@@ -8,8 +8,11 @@ import cookieParser from "cookie-parser";
 import {UserModel} from "../api/models/User.js";
 import { PostModel } from "./models/Post.js";
 import multer from "multer";
+// import path from "path";
 const uploadMiddleware = multer({ dest: 'uploads/'});
 import fs from "fs";
+import * as url from 'url';
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
 const app = express();
 
@@ -22,6 +25,7 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(cookieParser());
+app.use('/uploads',express.static(__dirname + '/uploads'));
 
 if(process.env.mongoDBURL){
     mongoose.connect(process.env.mongoDBURL)
@@ -85,12 +89,25 @@ app.post('/post', uploadMiddleware.single('file'), async (req,res) => {
     const newPath = path+'.'+ext;
     fs.renameSync(path, newPath);
 
-    const {title,summary,content} = req.body;
-    const postDoc = await PostModel.create({
+    const {token} = req.cookies;
+    jsonwebtoken.verify(token, process.env.secret, {}, async (err,info) => {
+        if(err) throw err;
+        const {title,summary,content} = req.body;
+        const postDoc = await PostModel.create({
         title,
         summary,
         content,
         cover: newPath,
+        author: info.id,
     })
     res.json(postDoc);
+    })
+})
+
+app.get('/post', async (req,res) => {
+    res.json(await PostModel.find()
+    .populate('author', ['username'])
+    .sort({createdAt: -1})
+    .limit(20)
+    );
 })
