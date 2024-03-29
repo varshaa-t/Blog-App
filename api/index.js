@@ -40,7 +40,7 @@ else {
     console.error("mongoDBURL is not defined.");
 }
 
-app.post('/register', async (req,res) => {
+app.post('/register', async (req, res) => {
     const {username,password} = req.body;
     try{
         const userDoc = await UserModel.create({
@@ -53,7 +53,7 @@ app.post('/register', async (req,res) => {
     }
 })
 
-app.post('/login', async (req,res) => {
+app.post('/login', async (req, res) => {
     const {username,password} = req.body;
     const userDoc = await UserModel.findOne({username});
     const passOk = bcryptjs.compareSync(password, userDoc.password);
@@ -70,7 +70,7 @@ app.post('/login', async (req,res) => {
     }
 });
 
-app.get('/profile', (req,res) => {
+app.get('/profile', (req, res) => {
     const {token} = req.cookies;
     jsonwebtoken.verify(token, process.env.secret, {}, (err, info) => {
         if(err) throw err;
@@ -104,10 +104,16 @@ app.post('/post', uploadMiddleware.single('file'), async (req,res) => {
     })
 })
 
-app.get('/post', async (req,res) => {
+app.get('/post', async (req, res) => {
     res.json(await PostModel.find()
     .populate('author', ['username'])
     .sort({createdAt: -1})
     .limit(20)
     );
+})
+
+app.get('/post/:id', async (req, res) => {
+    const {id} = req.params;
+    const postDoc = await PostModel.findById(id).populate('author', ['username']);
+    res.json(postDoc);
 })
