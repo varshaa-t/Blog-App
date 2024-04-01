@@ -5,11 +5,11 @@ import dotenv from "dotenv";
 import bcryptjs from "bcryptjs";
 import jsonwebtoken from "jsonwebtoken";
 import cookieParser from "cookie-parser";
-import {UserModel} from "../api/models/User.js";
+import { UserModel } from "../api/models/User.js";
 import { PostModel } from "./models/Post.js";
 import multer from "multer";
 // import path from "path";
-const uploadMiddleware = multer({ dest: 'uploads/'});
+const uploadMiddleware = multer({ dest: 'uploads/' });
 import fs from "fs";
 import * as url from 'url';
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
@@ -21,13 +21,13 @@ const salt = bcryptjs.genSaltSync(10);
 dotenv.config();
 app.use(cors({
     credentials: true,
-    origin:'http://localhost:5173'
+    origin: 'http://localhost:5173'
 }));
 app.use(express.json());
 app.use(cookieParser());
-app.use('/uploads',express.static(__dirname + '/uploads'));
+app.use('/uploads', express.static(__dirname + '/uploads'));
 
-if(process.env.mongoDBURL){
+if (process.env.mongoDBURL) {
     mongoose.connect(process.env.mongoDBURL)
         .then(() => {
             console.log("App connected to database");
@@ -41,39 +41,39 @@ else {
 }
 
 app.post('/register', async (req, res) => {
-    const {username,password} = req.body;
-    try{
+    const { username, password } = req.body;
+    try {
         const userDoc = await UserModel.create({
             username,
             password: bcryptjs.hashSync(password, salt)
         });
         res.json(userDoc);
-    } catch(error){
+    } catch (error) {
         res.status(400).json(error);
     }
 })
 
 app.post('/login', async (req, res) => {
-    const {username,password} = req.body;
-    const userDoc = await UserModel.findOne({username});
+    const { username, password } = req.body;
+    const userDoc = await UserModel.findOne({ username });
     const passOk = bcryptjs.compareSync(password, userDoc.password);
-    if(passOk){
-        jsonwebtoken.sign({username,id:userDoc._id}, process.env.secret, {}, (err,token) => {
-            if(err) throw err;
+    if (passOk) {
+        jsonwebtoken.sign({ username, id: userDoc._id }, process.env.secret, {}, (err, token) => {
+            if (err) throw err;
             res.cookie('token', token).json({
-                id:userDoc._id,
+                id: userDoc._id,
                 username,
             });
         })
-    } else{
+    } else {
         res.status(400).json('Wrong credentials');
     }
 });
 
 app.get('/profile', (req, res) => {
-    const {token} = req.cookies;
+    const { token } = req.cookies;
     jsonwebtoken.verify(token, process.env.secret, {}, (err, info) => {
-        if(err) throw err;
+        if (err) throw err;
         res.json(info);
     })
 })
@@ -82,38 +82,67 @@ app.post('/logout', (req, res) => {
     res.cookie('token', '').json('Logged out');
 })
 
-app.post('/post', uploadMiddleware.single('file'), async (req,res) => {
-    const {originalname,path} = req.file;
+app.post('/post', uploadMiddleware.single('file'), async (req, res) => {
+    const { originalname, path } = req.file;
     const parts = originalname.split('.');
     const ext = parts[parts.length - 1];
-    const newPath = path+'.'+ext;
+    const newPath = path + '.' + ext;
     fs.renameSync(path, newPath);
 
-    const {token} = req.cookies;
-    jsonwebtoken.verify(token, process.env.secret, {}, async (err,info) => {
-        if(err) throw err;
-        const {title,summary,content} = req.body;
+    const { token } = req.cookies;
+    jsonwebtoken.verify(token, process.env.secret, {}, async (err, info) => {
+        if (err) throw err;
+        const { title, summary, content } = req.body;
         const postDoc = await PostModel.create({
-        title,
-        summary,
-        content,
-        cover: newPath,
-        author: info.id,
-    })
-    res.json(postDoc);
+            title,
+            summary,
+            content,
+            cover: newPath,
+            author: info.id,
+        })
+        res.json(postDoc);
     })
 })
 
 app.get('/post', async (req, res) => {
     res.json(await PostModel.find()
-    .populate('author', ['username'])
-    .sort({createdAt: -1})
-    .limit(20)
+        .populate('author', ['username'])
+        .sort({ createdAt: -1 })
+        .limit(20)
     );
 })
 
+app.put('/post', uploadMiddleware.single('file'), async (req, res) => {
+    let newPath = null;
+    if (req.file) {
+        const { originalname, path } = req.file;
+        const parts = originalname.split('.');
+        const ext = parts[parts.length - 1];
+        newPath = path + '.' + ext;
+        fs.renameSync(path, newPath);
+    }
+
+    const { token } = req.cookies;
+    jsonwebtoken.verify(token, process.env.secret, {}, async (err, info) => {
+        if (err) throw err;
+        const { id, title, summary, content } = req.body;
+        const postDoc = await PostModel.findById(id);
+        const isAuthor = JSON.stringify(postDoc.author) === JSON.stringify(info.id);
+        if (!isAuthor) {
+            return res.status(400).json('You are not the author');
+        }
+        await PostModel.findByIdAndUpdate(id, {
+            title,
+            summary,
+            content,
+            cover: newPath ? newPath : postDoc.cover,
+        });
+        res.json(postDoc);
+    })
+})
+
 app.get('/post/:id', async (req, res) => {
-    const {id} = req.params;
+    const { id } = req.params;
     const postDoc = await PostModel.findById(id).populate('author', ['username']);
     res.json(postDoc);
 })
