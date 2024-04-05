@@ -8,10 +8,10 @@ import cookieParser from "cookie-parser";
 import { UserModel } from "../api/models/User.js";
 import { PostModel } from "./models/Post.js";
 import multer from "multer";
-// import path from "path";
 const uploadMiddleware = multer({ dest: 'uploads/' });
 import fs from "fs";
 import * as url from 'url';
+import { postSchemaZod, userSchemaZod } from "./lib/validations.js"
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
 const app = express();
@@ -41,28 +41,46 @@ else {
 }
 
 app.post('/register', async (req, res) => {
-    const { username, password } = req.body;
-    try {
+    const body = req.body;
+    const { email, password } = req.body;
+
+    try{
+        const parsedData = userSchemaZod.safeParse(body);
+        if(!parsedData.success){
+            return res.status(422).json({ error: parsedData.error });
+        }
+
         const userDoc = await UserModel.create({
-            username,
+            email,
             password: bcryptjs.hashSync(password, salt)
-        });
-        res.json(userDoc);
-    } catch (error) {
-        res.status(400).json(error);
+            });
+            res.status(200).json({
+            id: userDoc._id,
+            email: userDoc.email,
+            });
+    } catch(error) {
+        res.status(400).json({message: error.message})
     }
-})
+    })
 
 app.post('/login', async (req, res) => {
-    const { username, password } = req.body;
-    const userDoc = await UserModel.findOne({ username });
+    const body = req.body;
+    const { email, password } = req.body;
+
+    const parsedData = userSchemaZod.safeParse(body);
+
+    if(!parsedData.success){
+        return res.status(422).json({ error: parsedData.error });
+    }
+
+    const userDoc = await UserModel.findOne({ email });
     const passOk = bcryptjs.compareSync(password, userDoc.password);
     if (passOk) {
-        jsonwebtoken.sign({ username, id: userDoc._id }, process.env.secret, {}, (err, token) => {
+        jsonwebtoken.sign({ email, id: userDoc._id }, process.env.secret, {}, (err, token) => {
             if (err) throw err;
             res.cookie('token', token).json({
                 id: userDoc._id,
-                username,
+                email,
             });
         })
     } else {
@@ -72,7 +90,8 @@ app.post('/login', async (req, res) => {
 
 app.get('/profile', (req, res) => {
     const { token } = req.cookies;
-    jsonwebtoken.verify(token, process.env.secret, {}, (err, info) => {
+
+    jsonwebtoken.verify(token, process.env.secret, { expiresIn: '1d'}, (err, info) => {
         if (err) throw err;
         res.json(info);
     })
@@ -92,7 +111,14 @@ app.post('/post', uploadMiddleware.single('file'), async (req, res) => {
     const { token } = req.cookies;
     jsonwebtoken.verify(token, process.env.secret, {}, async (err, info) => {
         if (err) throw err;
+        const body = req.body;
         const { title, summary, content } = req.body;
+
+        const parsedData = postSchemaZod.safeParse(body);
+        if(!parsedData.success){
+            return res.status(422).json({ error: parsedData.error });
+        }
+
         const postDoc = await PostModel.create({
             title,
             summary,
@@ -106,7 +132,7 @@ app.post('/post', uploadMiddleware.single('file'), async (req, res) => {
 
 app.get('/post', async (req, res) => {
     res.json(await PostModel.find()
-        .populate('author', ['username'])
+        .populate('author', ['email'])
         .sort({ createdAt: -1 })
         .limit(20)
     );
@@ -125,7 +151,15 @@ app.put('/post', uploadMiddleware.single('file'), async (req, res) => {
     const { token } = req.cookies;
     jsonwebtoken.verify(token, process.env.secret, {}, async (err, info) => {
         if (err) throw err;
+
+        const body = req.body;
         const { id, title, summary, content } = req.body;
+
+        const parsedData = postSchemaZod.safeParse(body);
+        if(!parsedData.success){
+            return res.status(422).json({ error: parsedData.error });
+        }
+        
         const postDoc = await PostModel.findById(id);
         const isAuthor = JSON.stringify(postDoc.author) === JSON.stringify(info.id);
         if (!isAuthor) {
@@ -143,6 +177,6 @@ app.put('/post', uploadMiddleware.single('file'), async (req, res) => {
 
 app.get('/post/:id', async (req, res) => {
     const { id } = req.params;
-    const postDoc = await PostModel.findById(id).populate('author', ['username']);
+    const postDoc = await PostModel.findById(id).populate('author', ['email']);
     res.json(postDoc);
 })

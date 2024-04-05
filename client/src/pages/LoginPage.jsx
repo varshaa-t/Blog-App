@@ -3,7 +3,7 @@ import {Navigate} from "react-router-dom";
 import { UserContext } from '../UserContext';
 
 function LoginPage() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [redirect, setRedirect] = useState(false);
   const {setUserInfo} = useContext(UserContext);
@@ -12,7 +12,7 @@ function LoginPage() {
     event.preventDefault();
     const response = await fetch("http://localhost:4000/login", {
       method: 'POST',
-      body: JSON.stringify({username,password}),
+      body: JSON.stringify({email,password}),
       headers: {
         'Content-Type': 'application/json'
       },
@@ -37,9 +37,9 @@ function LoginPage() {
             <h1>Login</h1>
             <input 
               type='text' 
-              placeholder='username'
-              value={username}
-              onChange={event => setUsername(event.target.value)}  
+              placeholder='email'
+              value={email}
+              onChange={event => setEmail(event.target.value)}  
             />
             <input 
               type='password' 

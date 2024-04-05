@@ -24,7 +24,7 @@ function PostPage() {
     <div className='post-page'>
       <h1>{postInfo.title}</h1>
       <time>{format(new Date(postInfo.createdAt), 'MMM d, yyyy HH:mm')}</time>
-      <div className="author">by @{postInfo.author.username}</div>
+      <div className="author">by @{postInfo.author.email}</div>
       {userInfo.id === postInfo.author._id && (
         <div className='edit-row'>
           <Link className='edit-btn' to={`/edit/${postInfo._id}`}>

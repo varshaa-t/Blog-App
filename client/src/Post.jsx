@@ -17,7 +17,7 @@ function Post({_id, title, summary, cover, content, createdAt, author }) {
           </Link>
         </h2>
         <p className="info">
-          <a href="" className="author">{author.username}</a>
+          <a href="" className="author">{author.email}</a>
           <time>{format(new Date(createdAt), 'MMM d, yyyy HH:mm')}</time>
         </p>
         <p className='summary'>{summary}</p>

@@ -23,19 +23,19 @@ function Header() {
     setUserInfo(null);
   }
 
-  const username = userInfo?.username;
+  const email = userInfo?.email;
 
   return (
     <header>
         <Link to="/" className="logo">My Blog</Link>
         <nav>
-          {username && (
+          {email && (
             <>
               <Link to='/create'>Create new post</Link>
               <a onClick={logout}>Logout</a>
             </>
           )}
-          {!username && (
+          {!email && (
             <>
               <Link to="/login">Login</Link>
               <Link to="/register">Register</Link>
