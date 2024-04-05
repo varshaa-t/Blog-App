@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, Navigate } from 'react-router-dom'
 import DOMPurify from 'dompurify'
 import { format } from 'date-fns';
 import { UserContext } from '../UserContext';
@@ -19,6 +19,10 @@ function PostPage() {
   }, [])
 
   if (!postInfo) return '';
+
+  if(!userInfo){
+    return <Navigate to='/'/>
+  }
 
   return (
     <div className='post-page'>

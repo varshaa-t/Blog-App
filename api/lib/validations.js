@@ -1,6 +1,4 @@
 import { z } from "zod";
-import pkg from 'validator';
-const { isMongoId } = pkg;
 
 export const userSchemaZod = z.object({
     email: z.string().email().min(1),
