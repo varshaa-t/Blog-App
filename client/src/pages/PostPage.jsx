@@ -24,11 +24,15 @@ function PostPage() {
     return <Navigate to='/'/>
   }
 
+  const userEmail = postInfo.author.email;
+  const parts = userEmail.split('@');
+  const username = parts[0];
+
   return (
     <div className='post-page'>
       <h1>{postInfo.title}</h1>
       <time>{format(new Date(postInfo.createdAt), 'MMM d, yyyy HH:mm')}</time>
-      <div className="author">by @{postInfo.author.email}</div>
+      <div className="author">by @{username}</div>
       {userInfo.id === postInfo.author._id && (
         <div className='edit-row'>
           <Link className='edit-btn' to={`/edit/${postInfo._id}`}>

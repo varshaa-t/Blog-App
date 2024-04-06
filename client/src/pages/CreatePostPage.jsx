@@ -9,7 +9,8 @@ const modules = {
         ['bold', 'italic', 'underline', 'strike', 'blockquote'],
         [{'list': 'ordered'}, {'list': 'bullet'}, { 'indent': '-1'}, { 'indent': '+1' }],
         ['link', 'image'],
-        ['clean']
+        ['clean'],
+        [{'align': ''}, {'align': 'center'}, {'align': 'right'}, {'align': 'justify'}],
     ]
 };
 
@@ -17,7 +18,8 @@ const formats = [
     'header',
     'bold', 'italic', 'underline', 'strike', 'blockquote',
     'list', 'bullet', 'indent',
-    'link', 'image'
+    'link', 'image',
+    'align'
 ];
 
 function CreatePostPage() {
