@@ -28,7 +28,7 @@ function Header() {
   return (
     <header>
         <Link to="/" className="logo">My Blog</Link>
-        <nav>
+        <nav className='navbar'>
           {email && (
             <>
               <Link to='/create'>Create new post</Link>

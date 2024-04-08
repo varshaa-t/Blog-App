@@ -20,8 +20,8 @@ function PostPage() {
 
   if (!postInfo) return '';
 
-  if(!userInfo){
-    return <Navigate to='/'/>
+  if (!userInfo) {
+    return <Navigate to='/' />
   }
 
   const userEmail = postInfo.author.email;
