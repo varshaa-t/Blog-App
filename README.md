@@ -14,11 +14,15 @@ This is a Blog App with frontend and backend using the MERN tech stack.
 
 ### Home Page
 
-![Screenshot_10](https://github.com/varshaa-t/Blog-App/assets/60147227/5e8180b6-671f-43e0-bf66-a8ed43580508)
+![Screenshot_13](https://github.com/varshaa-t/Blog-App/assets/60147227/46a4e1ab-65f0-4f99-832a-96ced2f37186)
 
 ### Home Page after login
 
-![Screenshot_11](https://github.com/varshaa-t/Blog-App/assets/60147227/79062f02-aac7-49c6-877d-9206ee88ebc4)
+![Screenshot_12](https://github.com/varshaa-t/Blog-App/assets/60147227/791758a8-b45d-414d-bd68-f2226665142e)
+
+### Post Page
+
+![Screenshot_14](https://github.com/varshaa-t/Blog-App/assets/60147227/ebc350e6-7616-4be0-bdf9-533d72e1da7f)
 
 ## Setup the Project Locally
 
