@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import toast from 'react-hot-toast'
 
 function RegisterPage() {
     const [email, setEmail] = useState('');
@@ -12,9 +13,9 @@ function RegisterPage() {
             headers: {'Content-Type':'application/json'}
         })
         if(response.status === 200){
-            alert('Registration successful');
+            toast.success('Registration successful');
         } else{
-            alert('Registration failed');
+            toast.error('Registration failed');
         }
     }
 

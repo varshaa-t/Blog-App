@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react'
 import {Navigate} from "react-router-dom";
 import { UserContext } from '../UserContext';
+import toast from 'react-hot-toast'
 
 function LoginPage() {
   const [email, setEmail] = useState('');
@@ -22,9 +23,10 @@ function LoginPage() {
       response.json().then(userInfo => {
         setUserInfo(userInfo);
         setRedirect(true);
+        toast.success('Login successful')
       })
     } else{
-      alert('wrong credentials');
+      toast.error('Wrong credentials');
     }
   }
 

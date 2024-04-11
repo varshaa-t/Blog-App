@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { Navigate, useParams } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 const modules = {
     toolbar: [
@@ -58,6 +59,7 @@ function EditPostPage() {
         });
         if (response.ok) {
             setRedirect(true);
+            toast.success('Post updated!')
         }
     }
 

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { Navigate } from 'react-router-dom';
+import toast from 'react-hot-toast'
 
 const modules = {
     toolbar: [
@@ -43,8 +44,9 @@ function CreatePostPage() {
         })
         if(response.ok){
             setRedirect(true);
+            toast.success('Created post successfully!');
         } else{
-            alert('Error creating a post')
+            toast.error('Error creating a post');
         }
     }
 

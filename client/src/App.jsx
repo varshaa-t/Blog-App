@@ -8,10 +8,12 @@ import { UserContextProvider } from './UserContext'
 import CreatePostPage from './pages/CreatePostPage'
 import PostPage from './pages/PostPage'
 import EditPostPage from './pages/EditPostPage'
+import { Toaster } from 'react-hot-toast'
 
 function App() {
   return (
     <UserContextProvider>
+      <Toaster/>
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<IndexPage />} />
