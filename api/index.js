@@ -180,3 +180,16 @@ app.get('/post/:id', async (req, res) => {
     const postDoc = await PostModel.findById(id).populate('author', ['email']);
     res.json(postDoc);
 })
+
+app.delete('/post/:id', async (req,res) => {
+    const { id } = req.params;
+    const postDoc = await PostModel.findByIdAndDelete(id);
+
+    if (!postDoc) {
+        return res.status(404).json({ message: 'Post not found' });
+    }
+    
+    return res.status(200).send({
+        message: "Blog post deleted successfully"
+    })
+})

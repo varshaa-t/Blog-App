@@ -3,11 +3,13 @@ import { Link, useParams, Navigate } from 'react-router-dom'
 import DOMPurify from 'dompurify'
 import { format } from 'date-fns';
 import { UserContext } from '../UserContext';
+import DeletePostPage from './DeletePostPage';
 
 function PostPage() {
   const [postInfo, setPostInfo] = useState(null);
   const { userInfo } = useContext(UserContext);
   const { id } = useParams();
+  const [openModal, setOpenModal] = useState(false);
 
   useEffect(() => {
     fetch(`http://localhost:4000/post/${id}`)
@@ -47,6 +49,17 @@ function PostPage() {
         <img src={`http://localhost:4000/${postInfo.cover}`} />
       </div>
       <div className='content' dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(postInfo?.content || '') }} />
+      {userInfo.id === postInfo.author._id && (
+        <div className='delete-row'>
+          <button className='delete-button' 
+            onClick={ () => 
+            { 
+              setOpenModal(true) 
+            }}> Delete this post 
+          </button>
+          {openModal && <DeletePostPage openModal={setOpenModal}/>}
+        </div>
+      )}
     </div>
   )
 }
