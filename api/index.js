@@ -102,6 +102,10 @@ app.post('/logout', (req, res) => {
 })
 
 app.post('/post', uploadMiddleware.single('file'), async (req, res) => {
+    if(!req.file){
+        return res.status(400).json("Upload pic")
+    }
+
     const { originalname, path } = req.file;
     const parts = originalname.split('.');
     const ext = parts[parts.length - 1];

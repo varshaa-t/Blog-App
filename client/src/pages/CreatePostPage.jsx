@@ -46,7 +46,7 @@ function CreatePostPage() {
             setRedirect(true);
             toast.success('Created post successfully!');
         } else{
-            toast.error('Error creating a post');
+            toast.error('Provide all the required fields: Title, Summary, Picture and Content');
         }
     }
 
